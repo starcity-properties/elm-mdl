@@ -1,4 +1,3 @@
-
 import Html exposing (..)
 import Html.Attributes exposing (href, class, style)
 import Html.Lazy
@@ -36,6 +35,7 @@ import Demo.Footer
 import Demo.Tooltip
 import Demo.Tabs
 import Demo.Slider
+import Demo.Steppers
 import Demo.Typography
 import Demo.Cards
 import Demo.Lists
@@ -62,6 +62,7 @@ type alias Model =
   , tooltip : Demo.Tooltip.Model
   , tabs : Demo.Tabs.Model
   , slider : Demo.Slider.Model
+  , steppers : Demo.Steppers.Model
   , typography : Demo.Typography.Model
   , cards : Demo.Cards.Model
   , lists : Demo.Lists.Model
@@ -89,6 +90,7 @@ model =
   , tooltip = Demo.Tooltip.model
   , tabs = Demo.Tabs.model
   , slider = Demo.Slider.model
+  , steppers = Demo.Steppers.model
   , typography = Demo.Typography.model
   , cards = Demo.Cards.model
   , lists = Demo.Lists.model
@@ -120,6 +122,7 @@ type Msg
   | TooltipMsg Demo.Tooltip.Msg
   | TabMsg Demo.Tabs.Msg
   | SliderMsg Demo.Slider.Msg
+  | SteppersMsg Demo.Steppers.Msg
   | TypographyMsg Demo.Typography.Msg
   | CardsMsg Demo.Cards.Msg
   | ListsMsg Demo.Lists.Msg
@@ -150,8 +153,8 @@ update action model =
     BadgesMsg    a -> lift  .badges     (\m x->{m|badges    =x}) BadgesMsg   Demo.Badges.update    a model
     LayoutMsg a -> lift  .layout    (\m x->{m|layout   =x}) LayoutMsg  Demo.Layout.update    a model
     MenusMsg a -> lift  .menus    (\m x->{m|menus   =x}) MenusMsg  Demo.Menus.update    a model
-    TextfieldMsg m -> 
-      Demo.Textfields.update m model.textfields 
+    TextfieldMsg m ->
+      Demo.Textfields.update m model.textfields
         |> Maybe.map (map1st (\x -> { model | textfields = x }))
         |> Maybe.withDefault (model, Cmd.none)
         |> map2nd (Cmd.map TextfieldMsg)
@@ -161,6 +164,7 @@ update action model =
     LoadingMsg   a -> lift  .loading    (\m x->{m|loading   =x}) LoadingMsg  Demo.Loading.update    a model
     FooterMsg   a -> lift  .footers    (\m x->{m|footers   =x}) FooterMsg  Demo.Footer.update    a model
     SliderMsg   a -> lift  .slider    (\m x->{m|slider   =x}) SliderMsg  Demo.Slider.update    a model
+    SteppersMsg   a -> lift  .steppers    (\m x->{m|steppers   =x}) SteppersMsg  Demo.Steppers.update    a model
     TooltipMsg   a -> lift  .tooltip    (\m x->{m|tooltip   =x}) TooltipMsg  Demo.Tooltip.update    a model
     TabMsg   a -> lift  .tabs    (\m x->{m|tabs   =x}) TabMsg  Demo.Tabs.update    a model
     TypographyMsg  a -> lift  .typography   (\m x->{m|typography  =x}) TypographyMsg Demo.Typography.update   a model
@@ -189,6 +193,7 @@ tabs =
   , ("Menus", "menus", .menus >> Demo.Menus.view >> App.map MenusMsg)
   , ("Sliders", "sliders", .slider >> Demo.Slider.view >> App.map SliderMsg)
   , ("Snackbar", "snackbar", .snackbar >> Demo.Snackbar.view >> App.map SnackbarMsg)
+  , ("Steppers", "steppers", .steppers >> Demo.Steppers.view >> App.map SteppersMsg)
   , ("Tables", "tables", .tables >> Demo.Tables.view >> App.map TablesMsg)
   , ("Tabs", "tabs", .tabs >> Demo.Tabs.view >> App.map TabMsg)
   , ("Textfields", "textfields", .textfields >> Demo.Textfields.view >> App.map TextfieldMsg)
@@ -322,15 +327,15 @@ view' model =
            [ Html.Attributes.attribute "src" "assets/highlight/highlight.pack.js" ]
            []
         , case nth model.selectedTab tabs of
-            Just ( "Dialog", _, _ ) -> 
+            Just ( "Dialog", _, _ ) ->
               App.map DialogMsg (Demo.Dialog.element model.dialog)
               {- Because of limitations on browsers that have non-native (polyfilled)
               <dialog> elements, our dialog element /may/ have to sit up here. However,
-              running in elm-reactor will never load the polyfill, so we render the 
-              dialog (wrongly if there is no polyfill) only when the Dialog tab is 
+              running in elm-reactor will never load the polyfill, so we render the
+              dialog (wrongly if there is no polyfill) only when the Dialog tab is
               active.
               -}
-            _ -> 
+            _ ->
               div [] []
         ]
     )
@@ -381,7 +386,7 @@ main =
           | mdl = Layout.setTabsWidth 2124 model.mdl
           {- elm gives us no way to measure the actual width of tabs. We
              hardwire it. If you add a tab, remember to update this. Find the
-             new value using: 
+             new value using:
 
              document.getElementsByClassName("mdl-layout__tab-bar")[0].scrollWidth
           -}
@@ -392,7 +397,7 @@ main =
     , subscriptions = \model ->
         Sub.batch
         [ Sub.map MenusMsg (Menu.subs Demo.Menus.Mdl model.menus.mdl)
-        , Material.subscriptions Mdl model 
+        , Material.subscriptions Mdl model
         ]
     , update = update
     }

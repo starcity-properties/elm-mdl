@@ -80,15 +80,15 @@ type Block a
 -}
 title : List (Style a) -> List (Html a) -> Block a
 title styling block =
-    Title 
+    Title
       {- MDL has a known bug (or missing feature), which will cause the subhead
          to come out wrong in title blocks; the bug remains unfixed in 1.3.x
-         because of backwards compatibility concerns. We don't have those yet, 
-         so we fix it here. 
+         because of backwards compatibility concerns. We don't have those yet,
+         so we fix it here.
 
          https://github.com/google/material-design-lite/issues/1002
       -}
-      (List.append 
+      (List.append
         styling
         [ css "justify-content" "flex-end"
         , css "flex-direction" "column"
@@ -101,7 +101,7 @@ title styling block =
 Specification.)
 -}
 head : List (Style a) -> List (Html a) -> Html a
-head styling = 
+head styling =
   Options.styled Html.h1
     (  cs "mdl-card__title-text"
     :: css "align-self" "flex-start"
@@ -113,11 +113,11 @@ Specification.
 -}
 subhead : List (Style a) -> List (Html a) -> Html a
 subhead styling =
-    Options.span 
-      (  cs "mdl-card__subtitle-text" 
+    Options.span
+      (  cs "mdl-card__subtitle-text"
       :: css "padding-top" "8px"
       :: styling
-      ) 
+      )
 
 
 
@@ -132,35 +132,35 @@ menu styling block =
 -}
 media : List (Style a) -> List (Html a) -> Block a
 media =
-    Media 
+    Media
 
 
 {-| Generate a supporting text block
 -}
 text : List (Style a) -> List (Html a) -> Block a
 text =
-    SupportingText 
+    SupportingText
 
 
 {-| Generate an actions block
 -}
 actions : List (Style a) -> List (Html a) -> Block a
 actions =
-    Actions 
+    Actions
 
 
 {- Cards should be clickable; however, clicks on the menu or controls in the
 action block obviously shouldn't also trigger the card-wide click event. We
 can't use `Html.Events.onWithOptions` because we can't construct a
-`Json.Decoder a` that doesn't fail. Hence this hack. 
+`Json.Decoder a` that doesn't fail. Hence this hack.
 -}
 stopClick : Style a
-stopClick = 
-  attribute <| 
+stopClick =
+  attribute <|
     Html.Attributes.attribute
       "onclick"
       "var event = arguments[0] || window.event; event.stopPropagation();"
-      
+
 
 {-| Render supplied block
 -}
@@ -189,14 +189,14 @@ block block =
 Notes. Google's MDL implementation sets `min-height: 200px`; this precludes a
 number of the examples from [the specification](https://material.google.com/components/cards.html#cards-usage),
 so the elm-mdl implementation sets `min-height: 0px`. Add `css "min-height" "200px"` as an option to `view`
-to adhere to the MDL implementation. 
+to adhere to the MDL implementation.
 -}
 view : List (Style a) -> List (Block a) -> Html a
 view styling views =
-    Options.div 
+    Options.div
       (List.append
         styling
-        [ cs "mdl-card" 
+        [ cs "mdl-card"
         , css "min-height" "0px"
-        ]) 
+        ])
       (List.map block views)
