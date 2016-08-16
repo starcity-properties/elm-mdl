@@ -5,8 +5,8 @@ import Html.Attributes exposing (..)
 
 import Material
 import Material.Helpers exposing (map1st, map2nd)
-import Material.Options as Options exposing (css)
-import Material.Stepper as Stepper
+import Material.Options as Options exposing (css, when)
+import Material.Stepper as Stepper exposing (completed)
 
 import Demo.Code as Code
 import Demo.Page as Page
@@ -15,7 +15,7 @@ import Demo.Page as Page
 
 type alias Model =
     { text : String
-    , stepper : Stepper.Model
+    , step : Int
     , mdl : Material.Model
     , code : Code.Model
     }
@@ -23,10 +23,7 @@ type alias Model =
 model : Model
 model =
     { text = "Hello, World!"
-    , stepper = Stepper.init
-                [ Stepper.conf 0 "Logistics" Nothing
-                , Stepper.conf 1 "Personal" Nothing
-                ]
+    , step = 1
     , mdl = Material.model
     , code = Code.model
     }
@@ -62,15 +59,21 @@ update action model =
 linear : Model -> (String, Html Msg, String)
 linear model =
     let
-        steps =
-            [ Options.div [] [ text "Content for step 1" ]
-            , Options.div [] [ text "Content for step two" ]
-            ]
         stepper =
-            Stepper.stepper model.stepper
-                [ Stepper.horizontal
-                , Stepper.linear]
-                <| List.map2 (,) model.stepper.steps steps
+            Stepper.stepper
+                [ Stepper.activeStep model.step
+                , Stepper.horizontal
+                ]
+                [ Stepper.step
+                      [ Stepper.title "Logistics"
+                      , completed
+                      ]
+                      [ Html.p [] [ text "Hello, first tab!" ] ]
+                , Stepper.step
+                    [ Stepper.title "Personal"
+                    ]
+                    [ Html.p [] [ text "Hello, other tab!" ] ]
+                ]
     in
         ( "Linear stepper", stepper, """TODO:""" )
 
